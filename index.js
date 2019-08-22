@@ -1,4 +1,21 @@
 
+const path = require('path');
+
+// TODO: change hard coded list to config
+
+const ALLOWED_IMPORTS = [
+    "react",
+    "emotion",
+    "jsdom",
+    "curlyquotes",
+    "react-dom",
+    "@guardian/pasteup",
+    "@frontend/lib/",
+    "@frontend/amp/lib/",
+    "@testing-library",
+    "@root/packages/frontend/amp/lib/"
+];
+
 module.exports = {
 
     rules: {
@@ -13,14 +30,44 @@ module.exports = {
             create: function(context) {
                 return {
                     ImportDeclaration(node) {
-                        
-                        // node.source.value contains the import literal.
-                        // filename is the name of the source file
 
-                        var fileName = context.getFilename();
+                        const importStatementLiteral = node.source.value;
+                        const sourceFilePath = context.getFilename();
+                        const resolvedImportStatementPath = path.resolve(
+                            path.dirname(sourceFilePath),
+                            importStatementLiteral
+                        );
 
-                        if(!fileName !== "<text>" && node.source.value.startsWith(".")){
-                            context.report(node, "Do not use relative imports: " + node.source.value);
+                        // TODO: Create be a config option to tell the rule where the components live instead of hardcoding it
+
+                        const isAllowed = (i) => ALLOWED_IMPORTS.filter((e)=>i.startsWith(e)).length > 0
+
+                        const isComponent = sourceFilePath.includes("/packages/frontend/amp/components/");
+
+                        if(isComponent && importStatementLiteral.startsWith(".")){
+
+                            // relative import
+
+                            if( !resolvedImportStatementPath.startsWith(path.dirname(sourceFilePath))){
+                                context.report(node, "DCR Components can only import core libraries, or modules that exist below themselves: " + resolvedImportStatementPath);
+                            }
+                            
+                        } else if(isComponent && importStatementLiteral.startsWith("@") && !isAllowed(importStatementLiteral)) {
+
+                            // @package import
+
+                            const syntheticPath = process.cwd() + importStatementLiteral.replace("@", "/packages/")
+
+                            if( !syntheticPath.startsWith(path.dirname(sourceFilePath))){
+                                context.report(node, "DCR Components can only import core libraries, or modules that exist below themselves:" + importStatementLiteral);
+                            }
+
+                        } else if(isComponent && !isAllowed(importStatementLiteral)) {
+
+                            // absolute import
+
+                            context.report(node, "DCR Components with non-relative imports must use the @ syntax" + importStatementLiteral);
+
                         }
                        
                     }
