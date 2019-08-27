@@ -1,21 +1,6 @@
 
 const path = require('path');
 
-// TODO: change hard coded list to config
-
-const ALLOWED_IMPORTS = [
-    "react",
-    "emotion",
-    "jsdom",
-    "curlyquotes",
-    "react-dom",
-    "@guardian/pasteup",
-    "@frontend/lib/",
-    "@frontend/amp/lib/",
-    "@testing-library",
-    "@root/packages/frontend/amp/lib/"
-];
-
 module.exports = {
 
     rules: {
@@ -31,6 +16,8 @@ module.exports = {
                 return {
                     ImportDeclaration(node) {
 
+                        const allowedImports = context.options[0].allowedImports;
+
                         const importStatementLiteral = node.source.value;
                         const sourceFilePath = context.getFilename();
                         const resolvedImportStatementPath = path.resolve(
@@ -40,7 +27,7 @@ module.exports = {
 
                         // TODO: Create be a config option to tell the rule where the components live instead of hardcoding it
 
-                        const isAllowed = (i) => ALLOWED_IMPORTS.filter((e)=>i.startsWith(e)).length > 0
+                        const isAllowed = (i) => allowedImports.filter((e)=>i.startsWith(e)).length > 0;
 
                         const isComponent = sourceFilePath.includes("/packages/frontend/amp/components/");
 
