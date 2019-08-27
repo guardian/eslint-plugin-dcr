@@ -1,8 +1,8 @@
 
 const path = require('path');
 
-const M_BAD_IMPORT = "DCR Components can only import core libraries, or modules that exist below themselves"
-const M_NO_AMPR = "DCR Components with non-relative imports must use the @ syntax"
+const M_BAD_IMPORT = "DCR Components can only import core libraries, or modules that exist below themselves";
+const M_NO_AMPR = "DCR Components with non-relative imports must use the @ syntax";
 
 const checkImportNode = (node, context) => {
 
