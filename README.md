@@ -1,3 +1,5 @@
+> Note: this repository is archived since [we stopped using it in DCR](https://github.com/guardian/dotcom-rendering/pull/4979)
+
 # Dotcom-Rendering Lint Rules
 
 Eslint plugins and rules for dotcom rendering components. Currently supports the following rules
